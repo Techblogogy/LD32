@@ -40,15 +40,17 @@ function Player () {
 
 	//Ticks Player
 	this.tickPlayer = function (kb) {
-		if (kbrd.keys.A) { //Move Left
-			mat4.translate(this.spr.modelMatrix, this.spr.modelMatrix, [-this.t/as,0,0]);
-			this.spr.animTick();
-		} else if (kbrd.keys.D) { //Move Right
-			mat4.translate(this.spr.modelMatrix, this.spr.modelMatrix, [this.t/as,0,0]);
-			this.spr.animTick();
-		} else {
-			this.spr.offset = 0;
-			this.spr.animTime = this.spr.animDuration;
+		if (this.enabled) {
+			if (kbrd.keys.A) { //Move Left
+				mat4.translate(this.spr.modelMatrix, this.spr.modelMatrix, [-this.t/as,0,0]);
+				this.spr.animTick();
+			} else if (kbrd.keys.D) { //Move Right
+				mat4.translate(this.spr.modelMatrix, this.spr.modelMatrix, [this.t/as,0,0]);
+				this.spr.animTick();
+			} else {
+				this.spr.offset = 0;
+				this.spr.animTime = this.spr.animDuration;
+			}
 		}
 	}
 
@@ -65,13 +67,16 @@ function IntSprite() {
 
 	this.arwCtr = [];
 
-	this.enabledR = true;
-	this.enabledA = true;
+	this.enabledR = true; //Enabled Render
+	this.enabledA = true; //Enabled Logic
 	this.colliding = false; //Stores Collisiton State
 
 	this.act; //Click Action
 
 	this.pl; //Player Pointer
+
+	this.pTime = 0;
+	this.hTime = 200;
 
 	this.initIntSpr = function (w, h, tSize, sSize, id) {
 		this.spr = new Sprite();
@@ -109,7 +114,8 @@ function IntSprite() {
 			if (this.colliding)
 				this.arw.modelMatrix[13] = 0.01 * Math.sin(cTime * 2* Math.PI / 2000) + this.arwCtr[1];
 
-			if (this.colliding && kb.keys[" "]) {
+			if (this.colliding && kb.keys[" "] && cTime-this.pTime>=this.hTime ) {
+				this.pTime = cTime;
 				this.act();
 			}
 		}
@@ -134,30 +140,26 @@ function Dialog()
 
 	this.font; //Stores Font For Text
 	this.s = 2/24; //Letter Size
-	this.w = 35; //String Width
+	this.w = 42; //String Width
 
+	this.curC = 0; //Current Dialog Screen
 	this.curS = 0; //Current Dialog Size
 	this.curId = 0; //Current Cursor Id
 	this.cursorSpr; //Cursor Sprite
 
 	this.pTime = 0;
-	this.holdTime = 100; //Key Hold Time
+	this.holdTime = 200; //Key Hold Time
 
 	this.enabled = false;
+	this.answering = false;
 
-	this.initDialog = function (fnt) {
+	this.prt;
+
+	this.initDialog = function (gl, fnt) {
 		this.font = fnt;
-		this.curS = this.map.length;
-		this.curId = this.curS-1;
 
-		for (var i=0; i<this.curS; i++) {
-			this.dTxt += " "+this.map[i][0];
-			var skip = this.w - this.map[i][0].length-1;
-
-			for (var a=0; a<skip; a++) {
-				this.dTxt += " ";
-			}
-		}
+		this.initCursor(gl);
+		this.initText(this.map[this.curC]);
 	}
 
 	this.setUpText = function (gl) {
@@ -176,11 +178,46 @@ function Dialog()
 
 		this.cursorSpr.setUniformsLocation(mainSh.uniforms.model, mainSh.uniforms.texOff);
 
-		mat4.translate(this.cursorSpr.modelMatrix, this.cursorSpr.modelMatrix, [0,this.curId*this.s,0]);
+		//mat4.translate(this.cursorSpr.modelMatrix, this.cursorSpr.modelMatrix, [0,this.curId*this.s,0]);
+		//this.cursorSpr.modelMatrix[13] = this.curId*this.s;
 	}
 
-	this.dialogClick = function () {
+	this.initText = function (mp) {
+		this.curS = mp.length;
 
+		this.curId = this.curS-1;
+		this.cursorSpr.modelMatrix[13] = this.curId*this.s;
+
+		for (var i=0; i<this.curS; i++) {
+			this.dTxt += " " + mp[i][0];
+			var skip = this.w - mp[i][0].length-1;
+
+			for (var a=0; a<skip; a++) {
+				this.dTxt += " ";
+			}
+		}
+	}
+
+	this.enableDialog = function (prt) {
+		this.prt = prt;
+
+		player.enabled = false;
+		this.enabled = true; 
+		this.prt.enabledA = false;
+
+		this.pTime = cTime;
+
+		//Set Cursor
+		this.curId = this.curS-1;
+		this.cursorSpr.modelMatrix[13] = this.curId*this.s;
+	}
+
+	this.disableDialog = function () {
+		this.enabled = false;
+		player.enabled = true;
+		this.prt.enabledA = true;
+
+		this.prt.pTime = cTime;
 	}
 
 	this.tickDialog = function (kb) {
@@ -189,22 +226,35 @@ function Dialog()
 				this.pTime = cTime;
 				this.curId--;
 
-				mat4.translate(this.cursorSpr.modelMatrix, this.cursorSpr.modelMatrix, [0,-this.s,0]);
+				// mat4.translate(this.cursorSpr.modelMatrix, this.cursorSpr.modelMatrix, [0,-this.s,0]);
+				this.cursorSpr.modelMatrix[13] = this.curId*this.s;
 			} else if (kb.keys.W && cTime-this.pTime>=this.holdTime && this.curId <= this.curS-2) {
 				this.pTime = cTime;
 				this.curId++;
 
-				mat4.translate(this.cursorSpr.modelMatrix, this.cursorSpr.modelMatrix, [0,this.s,0]);
-			} else if (kb.keys[" "] && cTime-this.pTime>=this.holdTime) {
+				// mat4.translate(this.cursorSpr.modelMatrix, this.cursorSpr.modelMatrix, [0,this.s,0]);
+				this.cursorSpr.modelMatrix[13] = this.curId*this.s;
+			} else if (kb.keys[" "] && cTime-this.pTime>=this.holdTime && !this.answering) {
 				this.pTime = cTime;
 
-				this.dTxt = this.map[this.curS-this.curId-1][1];
+				this.dTxt = this.map[this.curC][this.curS-this.curId-1][1];
 
 				if (this.dTxt == "EXIT") {
-					this.enabled = false;
+					this.disableDialog();
 				} else {
 					this.setUpText(gl);
+					this.answering = true;
 				}
+			} else if (kb.keys[" "] && cTime-this.pTime>=this.holdTime && this.answering) {
+				this.pTime = cTime;
+
+				this.dTxt = "";
+				this.curC = this.map[this.curC][this.curS-this.curId-1][2];
+
+				this.initText(this.map[this.curC]);
+				this.setUpText(gl);
+
+				this.answering = false;
 			}
 		}
 	}
@@ -212,7 +262,9 @@ function Dialog()
 	this.drawDialog = function (gl, sth) {
 		if (this.enabled) {
 			this.txt.txtMap.drawTilemap(gl, sth);
-			this.cursorSpr.drawSprite(gl, sth);			
+
+			if (!this.answering)
+				this.cursorSpr.drawSprite(gl, sth);			
 		}
 	}
 }
