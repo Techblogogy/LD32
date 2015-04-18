@@ -79,7 +79,10 @@ var cTime = 0, //Current Time
 var dlog; //Test Dialog
 
 //Ext
-var alloWalk = 0;
+var alloWalk = true;
+
+//Scenes
+var scn;
 
 window.onload = function () {
 	resM.getResources(InitCanvas);
@@ -186,11 +189,19 @@ function InitTextures() {
 }
 
 function InitMaps() {
-	garageMap = new Tilemap();
-	garageMap.getTilemapDataFile(res.garageMp, res.mainSheet, 2/8);
-	garageMap.initTilemap(gl);
+	scn = new Scene();
 
-	garageMap.spr.setUniformsLocation(mainSh.uniforms.model, mainSh.uniforms.texOff);
+	scn.tileMap = new Tilemap();
+	scn.tileMap.getTilemapDataFile(res.garageMp, res.mainSheet, 2/8);
+	scn.tileMap.initTilemap(gl);
+
+	scn.tileMap.spr.setUniformsLocation(mainSh.uniforms.model, mainSh.uniforms.texOff);
+
+	// garageMap = new Tilemap();
+	// garageMap.getTilemapDataFile(res.garageMp, res.mainSheet, 2/8);
+	// garageMap.initTilemap(gl);
+
+	// garageMap.spr.setUniformsLocation(mainSh.uniforms.model, mainSh.uniforms.texOff);
 }
 
 function InitSprites() {
@@ -211,12 +222,14 @@ function InitSprites() {
 	bombSpr.act = function () {
 		//console.log(this);
 		this.enabledA = false;
-		dlog.enabled = true;
+		scn.dialog.enabled = true;
 	}
 
 	mat4.translate(bombSpr.spr.modelMatrix, bombSpr.spr.modelMatrix, [(2/8*8)/as,(2/8*5)/as,0]);
 
 	bombSpr.updArrowPos();
+
+	scn.sprites.push(bombSpr);
 }
 
 function InitKeyboard() {
@@ -225,18 +238,32 @@ function InitKeyboard() {
 }
 
 function InitDialogs() {
-	dlog = new Dialog();
+	scn.dialog = new Dialog;
+	scn.dialog = new Dialog();
 
-	dlog.map = [
+	scn.dialog.map = [
 		["Who the hell are you?", "Sir are you allright, I'm your assistant, we work together, remember?"],
 		["What are we doing here?", "Sir we are making a weapon of mass destruction here in your garage."],
 		["Why is it so fucking dark here!", "We don't have money for more light bulbs sir"],
 		["See you around!", "EXIT"]
 	];
 
-	dlog.initDialog(res.mFont);
-	dlog.setUpText(gl);
-	dlog.initCursor(gl);
+	scn.dialog.initDialog(res.mFont);
+	scn.dialog.setUpText(gl);
+	scn.dialog.initCursor(gl);
+
+	// dlog = new Dialog();
+
+	// dlog.map = [
+	// 	["Who the hell are you?", "Sir are you allright, I'm your assistant, we work together, remember?"],
+	// 	["What are we doing here?", "Sir we are making a weapon of mass destruction here in your garage."],
+	// 	["Why is it so fucking dark here!", "We don't have money for more light bulbs sir"],
+	// 	["See you around!", "EXIT"]
+	// ];
+
+	// dlog.initDialog(res.mFont);
+	// dlog.setUpText(gl);
+	// dlog.initCursor(gl);
 }
 
 function InitCamera() {
@@ -268,11 +295,10 @@ function Tick() {
 
 	GetTime();
 
-	dlog.tickDialog(kbrd);
+	// dlog.tickDialog(kbrd);
+	// bombSpr.tickSprite(kbrd);
 
-	// console.log( isColliding(scienSpr.modelMatrix, bombSpr.modelMatrix, scienSpr.w, bombSpr.w) );
-
-	bombSpr.tickSprite(kbrd);
+	scn.tickScene(kbrd);
 
 	//Player Tick Thing
 	if (kbrd.keys.A) { //Move Left
@@ -291,15 +317,17 @@ function Render() {
 	gl.bindFramebuffer(gl.FRAMEBUFFER, fbo.fbo);
 	gl.clear(gl.COLOR_BUFFER_BIT);
 
-	mainTex.bindTexture(gl, gl.TEXTURE0, 0, mainSh.uniforms.tex);
+	// mainTex.bindTexture(gl, gl.TEXTURE0, 0, mainSh.uniforms.tex);
 
-	garageMap.drawTilemap(gl, mainSh); //Draw Level
-	bombSpr.drawSprite(gl, mainSh); //Draw Bomb Sprite
-	scienSpr.drawSprite(gl, mainSh); //Draw Player Scientist
+	// garageMap.drawTilemap(gl, mainSh); //Draw Level
+	// bombSpr.drawSprite(gl, mainSh); //Draw Bomb Sprite
+	// scienSpr.drawSprite(gl, mainSh); //Draw Player Scientist
 
 	//Render Dialog
-	fontTex.bindTexture(gl, gl.TEXTURE0, 0, mainSh.uniforms.tex);
-	dlog.drawDialog(gl, mainSh);
+	// fontTex.bindTexture(gl, gl.TEXTURE0, 0, mainSh.uniforms.tex);
+	// dlog.drawDialog(gl, mainSh);
+
+	scn.drawScene(gl, mainSh);
 
 	//Disable Framebuffer And Main Shader
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
@@ -313,7 +341,7 @@ function Render() {
 
 	gl.useProgram(fboSh.program);
 
-	lightTex.bindTexture(gl, gl.TEXTURE2, 2, fboSh.uniforms.light);
+	lightTex.bindTexture(gl, gl.TEXTURE1, 1, fboSh.uniforms.light);
 	fbo.texture.bindTexture(gl, gl.TEXTURE0, 0, fboSh.uniforms.tex);
 
 	fbo.bindBuffers(gl);
