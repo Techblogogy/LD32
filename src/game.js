@@ -169,11 +169,8 @@ function InitFramebuffer() {
 	fbo = new Framebuffer();
 	fbo.initFramebuffer(gl, canvas.width, canvas.height);
 
-	//fbo.texture.bindTexture(gl, gl.TEXTURE1, 1, fboSh.uniforms.tex1);
-
 	lightTex = new Texture();
 	lightTex.makeTexture(gl, gl.NEAREST, res.lightMapG);
-	lightTex.bindTexture(gl, gl.TEXTURE1, 1, fboSh.uniforms.tex1);
 
 	gl.bindTexture(gl.TEXTURE_2D, null);
 
@@ -291,17 +288,7 @@ function Tick() {
 }
 
 function Render() {
-	// gl.bindFramebuffer(gl.FRAMEBUFFER, fbo.fbo);
-	// gl.clear(gl.COLOR_BUFFER_BIT);
-
-	// garageMap.drawTilemap(gl, mainSh);
-
-	// //Disable Framebuffer And Main Shader
-	// gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-	// mainSh.disableAttributes(gl);
-
-	//Render Framebuffer
-	gl.viewport(0,0,canvas.width,canvas.height);
+	gl.bindFramebuffer(gl.FRAMEBUFFER, fbo.fbo);
 	gl.clear(gl.COLOR_BUFFER_BIT);
 
 	mainTex.bindTexture(gl, gl.TEXTURE0, 0, mainSh.uniforms.tex);
@@ -314,16 +301,30 @@ function Render() {
 	fontTex.bindTexture(gl, gl.TEXTURE0, 0, mainSh.uniforms.tex);
 	dlog.drawDialog(gl, mainSh);
 
-	// gl.useProgram(fboSh.program);
-	// fbo.bindBuffers(gl);
+	//Disable Framebuffer And Main Shader
+	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+	mainSh.disableAttributes(gl);
 
-	// fboSh.enableAttributes(gl);
-	// fboSh.updateAttributes(gl);
+	gl.bindTexture(gl.TEXTURE_2D, null);
 
-	// fbo.drawFBO(gl);
+	//Render Framebuffer
+	gl.viewport(0,0,canvas.width,canvas.height);
+	gl.clear(gl.COLOR_BUFFER_BIT);
 
-	// fboSh.disableAttributes(gl);
+	gl.useProgram(fboSh.program);
 
-	// gl.useProgram(mainSh.program);
-	// mainSh.enableAttributes(gl);
+	lightTex.bindTexture(gl, gl.TEXTURE2, 2, fboSh.uniforms.light);
+	fbo.texture.bindTexture(gl, gl.TEXTURE0, 0, fboSh.uniforms.tex);
+
+	fbo.bindBuffers(gl);
+
+	fboSh.enableAttributes(gl);
+	fboSh.updateAttributes(gl);
+
+	fbo.drawFBO(gl);
+
+	fboSh.disableAttributes(gl);
+
+	gl.useProgram(mainSh.program);
+	mainSh.enableAttributes(gl);
 }
