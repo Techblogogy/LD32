@@ -85,7 +85,7 @@ var alloWalk = true;
 var scn;
 
 //Players
-var plr;
+var player;
 
 window.onload = function () {
 	resM.getResources(InitCanvas);
@@ -205,16 +205,16 @@ function InitMaps() {
 }
 
 function InitSprites() {
-	scn.player = new Player();
-	scn.player.spr = new Sprite();
-	scn.player.spr.createSprite(2/8*3, 2/8*3, 256, 16, 241);
-	scn.player.spr.initSprite(gl);
+	player = new Player();
+	player.spr = new Sprite();
+	player.spr.createSprite(2/8*3, 2/8*3, 256, 16, 241);
+	player.spr.initSprite(gl);
 
-	scn.player.spr.setUniformsLocation(mainSh.uniforms.model, mainSh.uniforms.texOff);
+	player.spr.setUniformsLocation(mainSh.uniforms.model, mainSh.uniforms.texOff);
 
-	mat4.translate(scn.player.spr.modelMatrix, scn.player.spr.modelMatrix, [(2/8*5)/as,0.25,0]);
+	mat4.translate(player.spr.modelMatrix, player.spr.modelMatrix, [(2/8*5)/as,0.25,0]);
 
-	scn.player.spr.animInit(380, 1,1,3);
+	player.spr.animInit(380, 1,1,3);
 
 	// //Init Player Sprite
 	// scienSpr = new Sprite();

@@ -3,7 +3,7 @@ function Scene () {
 
 	this.tileMap; //Scenes Tilemap
 	this.dialog; //Dialog Object
-	this.player; //Player Object
+	//this.player; //Player Object
 
 	this.tickScene = function (kb) {
 		for (var i=0; i<this.sprites.length; i++) {
@@ -11,8 +11,8 @@ function Scene () {
 			this.sprites[i].tickSprite(kb);
 		}
 
-		this.dialog.tickDialog(kb);
-		this.player.tickPlayer(kb);
+		this.dialog.tickDialog(kb); //Dialog Logic
+		player.tickPlayer(kb); //Player Logic
 	}
 
 	this.drawScene = function (gl, sth) {
@@ -25,7 +25,7 @@ function Scene () {
 			this.sprites[i].drawSprite(gl, sth);
 		}
 
-		this.player.drawPlayer(gl, sth); //Draw Player 
+		player.drawPlayer(gl, sth); //Draw Player 
 
 		fontTex.bindTexture(gl, gl.TEXTURE0, 0, mainSh.uniforms.tex);
 		this.dialog.drawDialog(gl, sth); //Draw Dialog
@@ -71,6 +71,8 @@ function IntSprite() {
 
 	this.act; //Click Action
 
+	this.pl; //Player Pointer
+
 	this.initIntSpr = function (w, h, tSize, sSize, id) {
 		this.spr = new Sprite();
 		this.spr.createSprite(w, h, tSize, sSize, id);
@@ -97,11 +99,11 @@ function IntSprite() {
 	this.tickSprite = function (kb) {
 		if (this.enabledA) {
 			//Check For Collision
-			// if (this.isColliding(scienSpr.modelMatrix, scienSpr.w)) {
-			// 	this.colliding = true;
-			// } else {
-			// 	this.colliding = false;
-			// }
+			if (this.isColliding(player.spr.modelMatrix, player.spr.w)) {
+				this.colliding = true;
+			} else {
+				this.colliding = false;
+			}
 
 			//Floating Animation
 			if (this.colliding)
