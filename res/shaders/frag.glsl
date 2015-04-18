@@ -10,5 +10,5 @@ uniform vec2 texOff;
 
 void main(void) 
 { 
-	gl_FragColor = texture2D(tex, vTexPs+texOff) /* texture2D(light, vLmpPs)*/;
+	gl_FragColor = texture2D(tex, vTexPs+texOff)/* texture2D(light, vLmpPs)*/;
 }
