@@ -84,6 +84,9 @@ var alloWalk = true;
 //Scenes
 var scn;
 
+//Players
+var plr;
+
 window.onload = function () {
 	resM.getResources(InitCanvas);
 }
@@ -117,9 +120,6 @@ function InitGame() {
 	InitCamera();
 
 	mainSh.enableAttributes(gl);
-
-	 // mat4.scale(scienSpr.modelMatrix, scienSpr.modelMatrix, vec3.fromValues(-1,1,1));
-
 
 	window.requestAnimationFrame(MainLoop);
 }
@@ -205,16 +205,27 @@ function InitMaps() {
 }
 
 function InitSprites() {
-	//Init Player Sprite
-	scienSpr = new Sprite();
-	scienSpr.createSprite(2/8*3, 2/8*3, 256, 16, 241);
-	scienSpr.initSprite(gl);
+	scn.player = new Player();
+	scn.player.spr = new Sprite();
+	scn.player.spr.createSprite(2/8*3, 2/8*3, 256, 16, 241);
+	scn.player.spr.initSprite(gl);
 
-	scienSpr.setUniformsLocation(mainSh.uniforms.model, mainSh.uniforms.texOff);
+	scn.player.spr.setUniformsLocation(mainSh.uniforms.model, mainSh.uniforms.texOff);
 
-	mat4.translate(scienSpr.modelMatrix, scienSpr.modelMatrix, [(2/8*5)/as,0.25,0]);
+	mat4.translate(scn.player.spr.modelMatrix, scn.player.spr.modelMatrix, [(2/8*5)/as,0.25,0]);
 
-	scienSpr.animInit(380, 1,1,3);
+	scn.player.spr.animInit(380, 1,1,3);
+
+	// //Init Player Sprite
+	// scienSpr = new Sprite();
+	// scienSpr.createSprite(2/8*3, 2/8*3, 256, 16, 241);
+	// scienSpr.initSprite(gl);
+
+	// scienSpr.setUniformsLocation(mainSh.uniforms.model, mainSh.uniforms.texOff);
+
+	// mat4.translate(scienSpr.modelMatrix, scienSpr.modelMatrix, [(2/8*5)/as,0.25,0]);
+
+	// scienSpr.animInit(380, 1,1,3);
 
 	//Init Bomb Sprite
 	bombSpr = new IntSprite();
@@ -291,26 +302,12 @@ function MainLoop() {
 }
 
 function Tick() {
-	var t = (1/4)/24;
-
 	GetTime();
 
 	// dlog.tickDialog(kbrd);
 	// bombSpr.tickSprite(kbrd);
 
 	scn.tickScene(kbrd);
-
-	//Player Tick Thing
-	if (kbrd.keys.A) { //Move Left
-		mat4.translate(scienSpr.modelMatrix, scienSpr.modelMatrix, [-t/as,0,0]);
-		scienSpr.animTick();
-	} else if (kbrd.keys.D) { //Move Right
-		mat4.translate(scienSpr.modelMatrix, scienSpr.modelMatrix, [t/as,0,0]);
-		scienSpr.animTick();
-	} else {
-		scienSpr.offset = 0;
-		scienSpr.animTime = scienSpr.animDuration;
-	}
 }
 
 function Render() {

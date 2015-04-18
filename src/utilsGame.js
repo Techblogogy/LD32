@@ -3,6 +3,7 @@ function Scene () {
 
 	this.tileMap; //Scenes Tilemap
 	this.dialog; //Dialog Object
+	this.player; //Player Object
 
 	this.tickScene = function (kb) {
 		for (var i=0; i<this.sprites.length; i++) {
@@ -11,6 +12,7 @@ function Scene () {
 		}
 
 		this.dialog.tickDialog(kb);
+		this.player.tickPlayer(kb);
 	}
 
 	this.drawScene = function (gl, sth) {
@@ -23,7 +25,7 @@ function Scene () {
 			this.sprites[i].drawSprite(gl, sth);
 		}
 
-		scienSpr.drawSprite(gl, sth); //Draw Player 
+		this.player.drawPlayer(gl, sth); //Draw Player 
 
 		fontTex.bindTexture(gl, gl.TEXTURE0, 0, mainSh.uniforms.tex);
 		this.dialog.drawDialog(gl, sth); //Draw Dialog
@@ -32,13 +34,27 @@ function Scene () {
 
 function Player () {
 	this.spr; //Player Sprite
+	this.enabled = true; //Player State
 
-	this.tickPlayer = function () {
-		
+	this.t = (1/4)/24; //Players Speed
+
+	//Ticks Player
+	this.tickPlayer = function (kb) {
+		if (kbrd.keys.A) { //Move Left
+			mat4.translate(this.spr.modelMatrix, this.spr.modelMatrix, [-this.t/as,0,0]);
+			this.spr.animTick();
+		} else if (kbrd.keys.D) { //Move Right
+			mat4.translate(this.spr.modelMatrix, this.spr.modelMatrix, [this.t/as,0,0]);
+			this.spr.animTick();
+		} else {
+			this.spr.offset = 0;
+			this.spr.animTime = this.spr.animDuration;
+		}
 	}
 
-	this.renderPlayer = function () {
-
+	//Renders Player
+	this.drawPlayer = function (gl, sth) {
+		this.spr.drawSprite(gl, sth);
 	}
 }
 
@@ -81,11 +97,11 @@ function IntSprite() {
 	this.tickSprite = function (kb) {
 		if (this.enabledA) {
 			//Check For Collision
-			if (this.isColliding(scienSpr.modelMatrix, scienSpr.w)) {
-				this.colliding = true;
-			} else {
-				this.colliding = false;
-			}
+			// if (this.isColliding(scienSpr.modelMatrix, scienSpr.w)) {
+			// 	this.colliding = true;
+			// } else {
+			// 	this.colliding = false;
+			// }
 
 			//Floating Animation
 			if (this.colliding)
