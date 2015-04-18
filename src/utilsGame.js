@@ -26,7 +26,9 @@ function Scene () {
 		}
 
 		player.drawPlayer(gl, sth); //Draw Player 
+	}
 
+	this.drawText = function (gl, sth) {
 		fontTex.bindTexture(gl, gl.TEXTURE0, 0, mainSh.uniforms.tex);
 		this.dialog.drawDialog(gl, sth); //Draw Dialog
 	}

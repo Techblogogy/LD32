@@ -318,4 +318,6 @@ function Render() {
 
 	gl.useProgram(mainSh.program);
 	mainSh.enableAttributes(gl);
+
+	scn.drawText(gl, mainSh);
 }
