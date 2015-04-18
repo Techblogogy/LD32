@@ -66,7 +66,9 @@ var fontTex; //Font Texture
 var garageMap;
 
 //Sprites
-var scienSpr;
+var scienSpr; //Main Player Sprite
+var arrowSpr; //Interactive Object Pointer Arrow
+var bombSpr; //Bomb Sprite
 
 //Timing
 var cTime = 0, //Current Time
@@ -195,15 +197,29 @@ function InitMaps() {
 }
 
 function InitSprites() {
+	//Init Player Sprite
 	scienSpr = new Sprite();
 	scienSpr.createSprite(2/8*3, 2/8*3, 256, 16, 241);
 	scienSpr.initSprite(gl);
 
 	scienSpr.setUniformsLocation(mainSh.uniforms.model, mainSh.uniforms.texOff);
 
-	mat4.translate(scienSpr.modelMatrix, scienSpr.modelMatrix, [(2/8*0)/as,0.25,0]);
+	mat4.translate(scienSpr.modelMatrix, scienSpr.modelMatrix, [(2/8*5)/as,0.25,0]);
 
 	scienSpr.animInit(380, 1,1,3);
+
+	//Init Bomb Sprite
+	bombSpr = new IntSprite();
+	bombSpr.initIntSpr(2/8, 2/8, 256, 16, 114);
+	bombSpr.act = function () {
+		//console.log(this);
+		this.enabledA = false;
+		dlog.enabled = true;
+	}
+
+	mat4.translate(bombSpr.spr.modelMatrix, bombSpr.spr.modelMatrix, [(2/8*8)/as,(2/8*5)/as,0]);
+
+	bombSpr.updArrowPos();
 }
 
 function InitKeyboard() {
@@ -257,12 +273,13 @@ function Tick() {
 
 	dlog.tickDialog(kbrd);
 
+	// console.log( isColliding(scienSpr.modelMatrix, bombSpr.modelMatrix, scienSpr.w, bombSpr.w) );
+
+	bombSpr.tickSprite(kbrd);
+
 	//Player Tick Thing
 	if (kbrd.keys.A) { //Move Left
 		mat4.translate(scienSpr.modelMatrix, scienSpr.modelMatrix, [-t/as,0,0]);
-
-		// mat4.scale(scienSpr.modelMatrix, scienSpr.modelMatrix, vec3.fromValues(-1,1,1));
-
 		scienSpr.animTick();
 	} else if (kbrd.keys.D) { //Move Right
 		mat4.translate(scienSpr.modelMatrix, scienSpr.modelMatrix, [t/as,0,0]);
@@ -290,6 +307,7 @@ function Render() {
 	mainTex.bindTexture(gl, gl.TEXTURE0, 0, mainSh.uniforms.tex);
 
 	garageMap.drawTilemap(gl, mainSh); //Draw Level
+	bombSpr.drawSprite(gl, mainSh); //Draw Bomb Sprite
 	scienSpr.drawSprite(gl, mainSh); //Draw Player Scientist
 
 	//Render Dialog
