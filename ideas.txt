@@ -1,0 +1,101 @@
+LD32 An Unconventional Weapon
+
+Story:
+	World is about to fall into the World War III, you experince the last moments of our planet as we know it.
+
+	You play as 3 different characters: Goverment agent, Scientist and a teenage boy.
+
+	Scientics Story:
+		You and you're partner were hired to make a new weapon of mass destruction, cause of limited goverment finances you work form your garage.
+Your mission as player is to solve a puzzle that makes this new weapon. To make this weapon of unlimited power you will need following parts:
+	1) A deadly virus -- mission for teenage boy;
+	2) A detonator -- mission for teenage boy;
+	3) A Secret Ingredient -- mission for scientist;
+		You work in your lab trying to make a secret ingredient. You seem to have a bit of amnesia so you need to talk to your assistant.
+
+		Assistant and Scintist dialog:
+		- Who the hell are you?
+			- Sir are you allright, I'm your assistant, we work together, remember?
+				- Oh, yes! I've must of hit my had a bit
+					- Whatever you say
+				- Thanks!
+					- Whatever you say
+				- Ah, now I remember
+					- Whatever you say
+		- What are we doing here?
+			- Sir we are making a weapon of mass destruction here in your garage.
+				- Of course, how could of I forgotten!
+					- Are sure you allright, sir?
+						- I'm perfectly normal, just testing you!
+							- OK
+				- Why are we making it in an old garage?
+					- So no one would suspect? I don't really know.
+						- Great!
+				- LA LA LA...
+					- Whatever you say
+				- How do you make a weapon of mass destruction?
+					- You've written the guide on chalkboard over there.
+						- I don't have my glasses on can you read it for me?
+							- We need A) deadly virus, B) detonator and C) Secret Ingredient
+						- Yes, I did that. I'm a freaking genious! What do we need?
+							- We need A) deadly virus, B) detonator and C) Secret Ingredient
+						- Shut up woman!
+							- Whatever you say
+		- Why is it so fucking dark here!
+			- We don't have money for more light bulbs sir
+				- Goddam light bubs! I fucking kill them one day!
+		- See you around!
+			- Exits Dialog
+
+		You exit your garage. You walk around and can see a teenage boy on the street. You talk to him.
+
+		Scientist and Teenage Boy dialog:
+		- Hey, kid can I ask you a question?
+			- Sure gramps, shoot
+				- You won't happen to have a deadly virus on you?
+					- I could get it for you
+						- Bring me it ASAP!
+				- Do you have a speare detonator lying around?
+					- Who doesn't have these thing, I have plenty in my basement
+						- Great bring it to me!
+				- Have any secret ingredients?
+					- Nope
+		- Kid, do you know anything about weapons of mass destrution?
+			- I'm not really an expert in that field.
+		- Shoo
+			- Exits Dialog
+
+		You can now play as a boy. You walk around the street. You enter one of the houses on the street. In the house you can see Josh from the BMB. 
+
+		Boy and Josh dialog:
+		- Hey, dad!
+			- Shh! I'm busy playing this computer game.
+
+		You can walk around the house. This house contains: living room, kitchen and a door to the basement. 
+
+		Kitchen:
+			This room looks like a regular kitchen, nothing special. On one of the tables you can see a toaster. When clicking on a toaster you pick up 
+		a 100 year old toast. Player says: "My dad, made this toast a long, long time ago, it's must containt some deadly basteria by now"
+
+		Basement:
+			This area has a lot of boxes of stuff. One of the boxes has a pile of detonators. Player say: "Here are the detonators, let's take one."
+
+		You now return to an old scientics.
+
+		Scientist and Teenage Boy dialog 2:
+		- I've got a detonator you were looking for!
+			- Exellent! Just what I need.
+		- I've got a toast with one hell of the virus!
+			- Great! I will extract that deadly bacteria from it!
+		- Look for your stuff
+			- You do that
+
+		You one again play as a mad scientics. You go into your lab and start adding ingedients to your bomb. Now you need to add you're secret ingredient.
+		You take a bit of plutonium from the garage and add into the bomb.
+
+		
+
+
+
+
+
