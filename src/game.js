@@ -34,6 +34,11 @@ var res = {
 		src: "./res/maps/kitchen.json"
 	},
 
+	basementMp: {
+		type: "text",
+		src: "./res/maps/basement.json"
+	},
+
 	mainSheet: {
 		type: "image",
 		src: "./res/textures/gameSheet.png"
@@ -41,12 +46,37 @@ var res = {
 
 	lightMapG: {
 		type: "image",
-		src: "./res/textures/light.png"
+		src: "./res/textures/lightG.png"
+	},
+
+	lightMapJ: {
+		type: "image",
+		src: "./res/textures/lightJ.png"
+	},
+
+	lightMapK: {
+		type: "image",
+		src: "./res/textures/lightK.png"
+	},
+
+	lightMapB: {
+		type: "image",
+		src: "./res/textures/lightB.png"
 	},
 
 	mFont: {
 		type: "image",
 		src: "./res/fonts/FontSheet.png"
+	},
+
+	theme1: {
+		type: "audio",
+		src: "./res/sounds/theme1.mp3"
+	},
+
+	click: {
+		type: "audio",
+		src: "./res/sounds/blip.mp3"
 	}
 }
 
@@ -95,9 +125,10 @@ var color = [1.0,1.0,1.0,1.0];
 //Scenes
 var scnMan;
 
-var scn;
-var scn2;
-var scn3;
+var scn; //Garage
+var scn2; //Josh Room
+var scn3; //Kitchen
+var scn4; //Beasement
 
 //Players
 var player;
@@ -135,6 +166,9 @@ function InitGame() {
 	InitCamera();
 
 	mainSh.enableAttributes(gl);
+
+	res.theme1.aud.loop = true;
+	// res.theme1.aud.play();
 
 	window.requestAnimationFrame(MainLoop);
 }
@@ -192,10 +226,7 @@ function InitFramebuffer() {
 	fbo = new Framebuffer();
 	fbo.initFramebuffer(gl, canvas.width, canvas.height);
 
-	lightTex = new Texture();
-	lightTex.makeTexture(gl, gl.NEAREST, res.lightMapG);
-
-	gl.bindTexture(gl.TEXTURE_2D, null);
+	// gl.bindTexture(gl.TEXTURE_2D, null);
 
 	gl.useProgram(mainSh.program);
 }
@@ -206,6 +237,9 @@ function InitTextures() {
 
 	fontTex = new Texture();
 	fontTex.makeTexture(gl, gl.NEAREST, res.mFont);
+
+	// lightTex = new Texture();
+	// lightTex.makeTexture(gl, gl.NEAREST, res.lightMapG);
 }
 
 function InitMaps() {
@@ -213,15 +247,23 @@ function InitMaps() {
 
 	scn = new Scene();
 	scn.addTilemap(res.garageMp, res.mainSheet);
+	scn.addLightmap(res.lightMapG);
 	scnMan.scenes.push(scn);
 
 	scn2 = new Scene();
 	scn2.addTilemap(res.joshMp, res.mainSheet);
+	scn2.addLightmap(res.lightMapJ);
 	scnMan.scenes.push(scn2);
 
 	scn3 = new Scene();
 	scn3.addTilemap(res.kitchenMp, res.mainSheet);
+	scn3.addLightmap(res.lightMapK);
 	scnMan.scenes.push(scn3);
+
+	scn4 = new Scene();
+	scn4.addTilemap(res.basementMp, res.mainSheet);
+	scn4.addLightmap(res.lightMapB);
+	scnMan.scenes.push(scn4);
 }
 
 function InitSprites() {
@@ -238,6 +280,7 @@ function InitSprites() {
 	var assist = new IntSprite();
 	assist.initIntSpr(2/8*3,2/8*3,256,16,210,2/8);
 	assist.act = function () {
+		scn.dialog.setDialogN();
 		scn.dialog.enableDialog(this);
 	}
 
@@ -248,9 +291,42 @@ function InitSprites() {
 	//Init Bomb Sprite
 	bombSpr = new IntSprite();
 	bombSpr.initIntSpr(2/8, 2/8, 256, 16, 114,0);
+	bombSpr.objs = 0;
 	bombSpr.act = function () {
-		//scn.dialog.enableDialog(this);
-		console.log("BOBMS");
+		// switch (this.objs) {
+		// 	case 0: 
+		// 		scn.dialog.setDialogO("This is my bomb. It's missing a virus and a detonator");
+		// 	break;
+
+		// 	case 2:
+		// 		scn.dialog.setDialogO();
+		// 	break;
+		// }
+
+		// scn.dialog.enableDialog(this);
+
+		// player.inventory[0].n == "DETONATOR" || player.inventory[1].n == "DETONATOR"
+		// player.inventory[0].n == "TOAST" || player.inventory[1].n == "TOAST"
+
+		// if (player.inventory[0].n != undefined || player.inventory[1].n != undefined) {
+		// 	player.inventory.pop();
+		// 	this.objs++;
+
+		// 	scn.dialog.setDialogO("Let's add this vhs player as detonator");
+		// } else if (player.inventory[0].n == "TOAST" || player.inventory[1].n == "TOAST") {
+		// 	player.inventory.pop();
+		// 	this.objs++;
+
+		// 	scn.dialog.setDialogO("Let's add this toast filled with deadly microbes");
+		// } else {
+		// 	scn.dialog.setDialogO("This is my bomb. It's missing some parts");
+		// }
+
+		// scn.dialog.enableDialog(this);
+
+		if (this.objs>=2) {
+			console.log("Make A Bomb");
+		}
 	}
 
 	mat4.translate(bombSpr.spr.modelMatrix, bombSpr.spr.modelMatrix, [(2/8*8)/as,(2/8*2.7),0]);
@@ -275,14 +351,34 @@ function InitSprites() {
 		player.addToInv("TOAST", 46);
 		toaster.spr.offset = 1;
 		this.enabledA = false;
+
+		scn3.dialog.enbPrt = false;
+		scn3.dialog.setDialogO("Hmm, josh made this toast awhile ago. It  must have developed some dealy bacteria bynow");
+		scn3.dialog.enableDialog(this);
 	}
 
-	mat4.translate(toaster.spr.modelMatrix, toaster.spr.modelMatrix, [(2/8*10.2)/as,0.675,0]);
+	mat4.translate(toaster.spr.modelMatrix, toaster.spr.modelMatrix, [(2/8*6)/as,0.675,0]);
 	toaster.updArrowPos();
 	scn3.sprites.push(toaster);
 
-	//INIT DOORS
+	//INIT DETONATOR
+	var deton = new IntSprite();
+	deton.initIntSpr(2/8,2/8,256,16,31,0);
+	deton.act = function () {
+		player.addToInv("DETONATOR", 31);
+		this.enabledA = false;
+		this.enabledR = false;
 
+		scn4.dialog.enbPrt = false;
+		scn4.dialog.setDialogO("Hmm, I can rig up this old VHS player as adetonator");
+		scn4.dialog.enableDialog(this);
+	}
+
+	mat4.translate(deton.spr.modelMatrix, deton.spr.modelMatrix, [(2/8*11)/as,0.75,0]);
+	deton.updArrowPos();
+	scn4.sprites.push(deton);
+
+	//INIT DOORS
 	var dr1 = new Door();
 	dr1.initDoor(scnMan, scn, 1, 12);
 
@@ -294,6 +390,12 @@ function InitSprites() {
 
 	var dr4 = new Door();
 	dr4.initDoor(scnMan, scn3, 1, 0);
+
+	var dr5 = new Door();
+	dr5.initDoor(scnMan, scn3, 3, 11.5);
+
+	var dr6 = new Door();
+	dr6.initDoor(scnMan, scn4, 2, 0);
 }
 
 function InitKeyboard() {
@@ -338,6 +440,20 @@ function InitDialogs() {
 	];
 	scn2.dialog.initDialog(gl, res.mFont);
 	scn2.dialog.setUpText(gl);
+
+	scn3.dialog = new Dialog();
+	scn3.dialog.map = [
+		[]
+	];
+	scn3.dialog.initDialog(gl, res.mFont);
+	scn3.dialog.setUpText(gl);
+
+	scn4.dialog = new Dialog();
+	scn4.dialog.map = [
+		[]
+	];
+	scn4.dialog.initDialog(gl, res.mFont);
+	scn4.dialog.setUpText(gl);
 }
 
 function InitCamera() {
@@ -395,7 +511,8 @@ function Render() {
 
 	gl.uniform4fv(fboSh.uniforms.amb, color);
 
-	lightTex.bindTexture(gl, gl.TEXTURE1, 1, fboSh.uniforms.light);
+	scnMan.bindLight(gl);
+	// lightTex.bindTexture(gl, gl.TEXTURE1, 1, fboSh.uniforms.light);
 	fbo.texture.bindTexture(gl, gl.TEXTURE0, 0, fboSh.uniforms.tex);
 
 	fbo.bindBuffers(gl);

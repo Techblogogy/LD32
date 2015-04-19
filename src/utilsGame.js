@@ -79,6 +79,10 @@ function SceneManager () {
 	this.renderTxt = function (gl, sh) {
 		this.scenes[this.curS].drawText(gl, sh);
 	}
+
+	this.bindLight = function (gl) {
+		this.scenes[this.curS].bindLight(gl);
+	}
 }
 
 function Scene () {
@@ -91,12 +95,19 @@ function Scene () {
 	this.plPos = mat4.create(); //Stores Player Position
 	mat4.translate(this.plPos, this.plPos, [(2/8*0)/as,0.25,0]);
 
+	this.lightMap;
+
 	this.addTilemap = function (dt, mp) {
 		this.tileMap = new Tilemap();
 		this.tileMap.getTilemapDataFile(dt, mp, 2/8);
 		this.tileMap.initTilemap(gl);
 
 		this.tileMap.spr.setUniformsLocation(mainSh.uniforms.model, mainSh.uniforms.texOff);
+	}
+
+	this.addLightmap = function (tex) {
+		this.lightMap = new Texture();
+		this.lightMap.makeTexture(gl, gl.NEAREST, tex);
 	}
 
 	this.tickScene = function (kb) {
@@ -132,6 +143,10 @@ function Scene () {
 
 		mainTex.bindTexture(gl, gl.TEXTURE0, 0, mainSh.uniforms.tex);
 		player.drawInv(gl, sth);
+	}
+
+	this.bindLight = function (gl) {
+		this.lightMap.bindTexture(gl, gl.TEXTURE1, 1, fboSh.uniforms.light);
 	}
 }
 
@@ -289,6 +304,36 @@ function IntSprite() {
 		}
 }
 
+// function HintText() {
+// 	this.enabled = false;
+
+// 	this.txt; //Text Component
+// 	this.sTxt; //Text
+
+// 	this.prt; //Caller Object
+
+// 	this.pTime = 0;
+// 	this.hTime = 0;
+
+// 	this.enable = function () {
+
+// 	}
+
+// 	this.disable = function () {
+
+// 	}
+
+// 	this.tickHint = function () {
+// 		if 
+// 	}
+
+// 	this.drawHint = function () {
+// 		if (this.enabled) {
+// 			this.txt.
+// 		}
+// 	}
+// }
+
 function Dialog()
 {
 	this.map; //Stores Dilalog Map
@@ -312,8 +357,11 @@ function Dialog()
 	this.answering = false;
 
 	this.prt; //Calling Object
+	this.enbPrt = true; //Enable Parent
 
 	this.blk; //Black Sprite
+
+	this.sMode = false;
 
 	this.initDialog = function (gl, fnt) {
 		this.font = fnt;
@@ -367,6 +415,29 @@ function Dialog()
 		}
 	}
 
+	this.setDialogN = function () {
+		this.sMode = false;
+
+		this.dTxt = "";
+		// this.curC = this.map[0][0][0];
+
+		this.initText(this.map[this.curC]);
+		this.setUpText(gl);
+		this.initBlk(gl,this.curS);
+
+		this.answering = false;
+	}
+
+	this.setDialogO = function (txt) {
+		this.dTxt = txt;
+
+		this.setUpText(gl);
+		this.initBlk(gl,this.txt.h);
+		this.answering = true;
+
+		this.sMode = true;
+	}
+
 	this.enableDialog = function (prt) {
 		this.prt = prt;
 
@@ -384,6 +455,8 @@ function Dialog()
 	this.disableDialog = function () {
 		this.enabled = false;
 		player.enabled = true;
+
+		if (this.enbPrt)
 		this.prt.enabledA = true;
 
 		this.prt.pTime = cTime;
@@ -391,22 +464,28 @@ function Dialog()
 
 	this.tickDialog = function (kb) {
 		if (this.enabled) {
-			if (kb.keys.S && cTime-this.pTime>=this.holdTime && this.curId >= 1) {
+			if (kb.keys.S && cTime-this.pTime>=this.holdTime && this.curId >= 1 && !this.answering) {
 				this.pTime = cTime;
 				this.curId--;
 
+				res.click.aud.play();
+
 				// mat4.translate(this.cursorSpr.modelMatrix, this.cursorSpr.modelMatrix, [0,-this.s,0]);
 				this.cursorSpr.modelMatrix[13] = this.curId*this.s;
-			} else if (kb.keys.W && cTime-this.pTime>=this.holdTime && this.curId <= this.curS-2) {
+			} else if (kb.keys.W && cTime-this.pTime>=this.holdTime && this.curId <= this.curS-2 && !this.answering) {
 				this.pTime = cTime;
 				this.curId++;
 
+				res.click.aud.play();
+
 				// mat4.translate(this.cursorSpr.modelMatrix, this.cursorSpr.modelMatrix, [0,this.s,0]);
 				this.cursorSpr.modelMatrix[13] = this.curId*this.s;
-			} else if (kb.keys[" "] && cTime-this.pTime>=this.holdTime && !this.answering) {
+			} else if (kb.keys[" "] && cTime-this.pTime>=this.holdTime && !this.answering && !this.sMode) {
 				this.pTime = cTime;
 
 				this.dTxt = this.map[this.curC][this.curS-this.curId-1][1];
+
+				res.click.aud.play();
 
 				if (this.dTxt == "EXIT") { //QUIT
 					this.disableDialog();
@@ -415,8 +494,10 @@ function Dialog()
 					this.initBlk(gl,this.txt.h);
 					this.answering = true;
 				}
-			} else if (kb.keys[" "] && cTime-this.pTime>=this.holdTime && this.answering) {
+			} else if (kb.keys[" "] && cTime-this.pTime>=this.holdTime && this.answering && !this.sMode) {
 				this.pTime = cTime;
+
+				console.log("Smode");
 
 				this.dTxt = "";
 				this.curC = this.map[this.curC][this.curS-this.curId-1][2];
@@ -425,7 +506,15 @@ function Dialog()
 				this.setUpText(gl);
 				this.initBlk(gl,this.curS);
 
+				res.click.aud.play();
+
 				this.answering = false;
+			} else if (kb.keys[" "] && cTime-this.pTime>=this.holdTime && this.sMode) {
+				this.pTime = cTime;
+
+				res.click.aud.play();
+
+				this.disableDialog();
 			}
 		}
 	}
