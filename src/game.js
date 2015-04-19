@@ -112,6 +112,11 @@ var res = {
 	walkFx: {
 		type: "audio",
 		src: "./res/sounds/walk.mp3"
+	},
+
+	boomFx: {
+		type: "audio",
+		src: "./res/sounds/exlod.mp3"
 	}
 }
 
@@ -166,6 +171,7 @@ var scn3; //Kitchen
 var scn4; //Beasement
 var scn5; //POV Lair
 var scn6; //Prizon Cell
+var scn7; //Coridor
 
 //Players
 var player;
@@ -325,6 +331,11 @@ function InitMaps() {
 	scn6.addTilemap(res.cellMp, res.mainSheet);
 	scn6.addLightmap(res.lightMapC);
 	scnMan.scenes.push(scn6);
+
+	scn7 = new Scene();
+	scn7.addTilemap(res.corMp, res.mainSheet);
+	scn7.addLightmap(res.lightMapC);
+	scnMan.scenes.push(scn7);
 }
 
 function InitSprites() {
@@ -398,8 +409,9 @@ function InitSprites() {
 
 			scn.dialog.act = function () {
 				scnMan.setLv(5);
-				// res.theme1.aud.pause();
-				// res.theme2.aud.play();
+				
+				res.theme1.aud.pause();
+				res.theme2.aud.play();
 			}
 
 			scn.dialog.setDialogO("Hello proffesor! I see you've completed   your bomb. I'm affraid I have to take you to the great pov");
@@ -539,7 +551,7 @@ function InitSprites() {
 	scn6.sprites.push(sink);
 
 	var dr7 = new Door();
-	dr7.initDoor(scnMan, scn6, 4, 11);
+	dr7.initDoor(scnMan, scn6, 6, 11);
 	dr7.dr.enabledA = false;
 
 	//INIT WATER
@@ -570,6 +582,19 @@ function InitSprites() {
 
 	var dr6 = new Door();
 	dr6.initDoor(scnMan, scn4, 2, 0);
+
+	var dr8 = new Door();
+	dr8.initDoor(scnMan, scn7, 5, 0);
+
+	var dr9 = new Door();
+	dr9.initDoor(scnMan, scn7, 4, 6);
+	dr9.dr.act = function () {
+		// res.theme1.aud.pause();
+		// res.theme2.aud.play();
+
+		playClickFX();
+		this.mn.setLv(this.sc);
+	}
 }
 
 function InitKeyboard() {
@@ -627,17 +652,19 @@ function InitDialogs() {
 
 	scn5.dialog = new Dialog();
 	scn5.dialog.act = function () {
-		scnMan.setLv(5);
+		res.theme2.aud.pause();
+		res.boomFx.aud.play();
+		fd.fadeOut();
 	}
 	scn5.dialog.map = [
-		[["We meet at once pov", "Please call me mike", 0],
-		 ["Why have you brought me here?", "Should I point out the obvious?", 1],
-		 ["What are you waiting for?", "I need to prepare myself for world destruction. But soon I will activate the bomb", 0],
-		 ["Why don't you kill me?", "I do need you to activate a bomb for me", 0],
-		 ["I better leave", "ACTION",0]],
+		[["We meet once again pov", "Hello my old friend", 0],
+		 ["Why have you brought me here?", "Should I point out the obvious?", 1]],
 
-		[["Yes", "You've made one of the greates weapons,   with it I can take over this little world", 0],
-		 ["No", "Excellent", 0]]
+		[["Yes", "You've made one powerfull weapon here, if you make me more I can take over the world", 2],
+		 ["No", "Excellent", 2]],
+
+		[["I will never join you!", "We'll see about that", 2],
+		 ["I'm ending this once and for all!", "ACTION", 0]]
 	];
 	scn5.dialog.initDialog(gl, res.mFont);
 	scn5.dialog.setUpText(gl);
@@ -657,6 +684,13 @@ function InitDialogs() {
 	scn6.dialog.setUpText(gl);
 
 	scn6.plPos[12] = (2/8*8)/as;
+
+	scn7.dialog = new Dialog();
+	scn7.dialog.map = [
+		[]
+	];
+	scn7.dialog.initDialog(gl, res.mFont);
+	scn7.dialog.setUpText(gl);
 }
 
 function InitCamera() {

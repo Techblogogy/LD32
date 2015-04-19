@@ -91,9 +91,6 @@ function SceneManager () {
 
 			this.curS++;
 			player.spr.modelMatrix = this.scenes[this.curS].plPos;
-
-			// console.log(this.scenes[this.curS].plPos);
-			// console.log(this.curS);
 		}
 	}
 
@@ -103,9 +100,6 @@ function SceneManager () {
 
 			this.curS--;
 			player.spr.modelMatrix = this.scenes[this.curS].plPos;
-
-			// console.log(this.scenes[this.curS].plPos);
-			// console.log(this.curS);
 		}
 	}
 
