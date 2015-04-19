@@ -15,6 +15,7 @@ function Door () {
 		this.dr.act = function () {
 			// scnMan.prevLv();
 			// console.log(this);
+			playClickFX();
 			this.mn.setLv(this.sc);
 		}
 
@@ -182,6 +183,7 @@ function Player () {
 		if (this.enabled) {
 			if (kbrd.keys.A) { //Move Left
 				// mat4.translate(this.transMatrix, this.transMatrix, [-this.t/as,0,0]);
+				res.walkFx.aud.play();
 
 				if (!this.fliped) { this.spr.offset = 3; this.fliped = true; this.spr.animInit(380, 1,4,6); }
 
@@ -189,6 +191,7 @@ function Player () {
 				this.spr.animTick();
 			} else if (kbrd.keys.D) { //Move Right
 				// mat4.translate(this.transMatrix, this.transMatrix, [this.t/as,0,0]);
+				res.walkFx.aud.play();
 
 				if (this.fliped) { this.spr.offset = 0; this.fliped = false; this.spr.animInit(380, 1,1,3); }
 
@@ -198,6 +201,8 @@ function Player () {
 				if (this.fliped) this.spr.offset = 3;
 				else this.spr.offset = 0;
 				this.spr.animTime = this.spr.animDuration;
+
+				res.walkFx.aud.pause();
 			}
 		}
 	}
@@ -363,6 +368,8 @@ function Dialog()
 
 	this.sMode = false;
 
+	this.act; //Action
+
 	this.initDialog = function (gl, fnt) {
 		this.font = fnt;
 
@@ -468,7 +475,13 @@ function Dialog()
 				this.pTime = cTime;
 				this.curId--;
 
-				res.click.aud.play();
+				// res.click.aud.play();
+
+				// res.click.aud.pause();
+				// res.click.aud.currentTime = 0;
+				// res.click.aud.play();
+
+				playClickFX();
 
 				// mat4.translate(this.cursorSpr.modelMatrix, this.cursorSpr.modelMatrix, [0,-this.s,0]);
 				this.cursorSpr.modelMatrix[13] = this.curId*this.s;
@@ -476,7 +489,8 @@ function Dialog()
 				this.pTime = cTime;
 				this.curId++;
 
-				res.click.aud.play();
+				// res.click.aud.play();
+				playClickFX();
 
 				// mat4.translate(this.cursorSpr.modelMatrix, this.cursorSpr.modelMatrix, [0,this.s,0]);
 				this.cursorSpr.modelMatrix[13] = this.curId*this.s;
@@ -485,9 +499,13 @@ function Dialog()
 
 				this.dTxt = this.map[this.curC][this.curS-this.curId-1][1];
 
-				res.click.aud.play();
+				// res.click.aud.play();
+				playClickFX();
 
 				if (this.dTxt == "EXIT") { //QUIT
+					this.disableDialog();
+				} else if (this.dTxt == "ACTION") {
+					this.act();
 					this.disableDialog();
 				} else { //RESPOND
 					this.setUpText(gl);
@@ -497,7 +515,7 @@ function Dialog()
 			} else if (kb.keys[" "] && cTime-this.pTime>=this.holdTime && this.answering && !this.sMode) {
 				this.pTime = cTime;
 
-				console.log("Smode");
+				playClickFX();
 
 				this.dTxt = "";
 				this.curC = this.map[this.curC][this.curS-this.curId-1][2];
@@ -506,13 +524,12 @@ function Dialog()
 				this.setUpText(gl);
 				this.initBlk(gl,this.curS);
 
-				res.click.aud.play();
-
 				this.answering = false;
 			} else if (kb.keys[" "] && cTime-this.pTime>=this.holdTime && this.sMode) {
 				this.pTime = cTime;
+				playClickFX();
 
-				res.click.aud.play();
+				if (this.act != undefined) this.act();
 
 				this.disableDialog();
 			}

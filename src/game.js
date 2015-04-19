@@ -39,6 +39,11 @@ var res = {
 		src: "./res/maps/basement.json"
 	},
 
+	povMp: {
+		type: "text",
+		src: "./res/maps/povLair.json"
+	},
+
 	mainSheet: {
 		type: "image",
 		src: "./res/textures/gameSheet.png"
@@ -77,6 +82,11 @@ var res = {
 	click: {
 		type: "audio",
 		src: "./res/sounds/blip.mp3"
+	},
+
+	walkFx: {
+		type: "audio",
+		src: "./res/sounds/walk.mp3"
 	}
 }
 
@@ -129,6 +139,7 @@ var scn; //Garage
 var scn2; //Josh Room
 var scn3; //Kitchen
 var scn4; //Beasement
+var scn5; //POV Lair
 
 //Players
 var player;
@@ -167,8 +178,14 @@ function InitGame() {
 
 	mainSh.enableAttributes(gl);
 
+	res.walkFx.aud.volume = 0.1;
+	res.click.aud.volume = 0.2;
+	res.theme1.aud.volume = 0.5;
+
+	res.walkFx.aud.loop = true;
 	res.theme1.aud.loop = true;
-	// res.theme1.aud.play();
+
+	res.theme1.aud.play();
 
 	window.requestAnimationFrame(MainLoop);
 }
@@ -178,6 +195,12 @@ function InitGL() {
 	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
 	gl.clearColor(0,0,0,1);
+}
+
+function playClickFX() {
+	res.click.aud.pause();
+	res.click.aud.currentTime = 0;
+	res.click.aud.play();
 }
 
 function InitShaders() {
@@ -264,6 +287,11 @@ function InitMaps() {
 	scn4.addTilemap(res.basementMp, res.mainSheet);
 	scn4.addLightmap(res.lightMapB);
 	scnMan.scenes.push(scn4);
+
+	scn5 = new Scene();
+	scn5.addTilemap(res.povMp, res.mainSheet);
+	scn5.addLightmap(res.lightMapG);
+	scnMan.scenes.push(scn5);
 }
 
 function InitSprites() {
@@ -280,6 +308,8 @@ function InitSprites() {
 	var assist = new IntSprite();
 	assist.initIntSpr(2/8*3,2/8*3,256,16,210,2/8);
 	assist.act = function () {
+		playClickFX();
+
 		scn.dialog.setDialogN();
 		scn.dialog.enableDialog(this);
 	}
@@ -293,40 +323,56 @@ function InitSprites() {
 	bombSpr.initIntSpr(2/8, 2/8, 256, 16, 114,0);
 	bombSpr.objs = 0;
 	bombSpr.act = function () {
-		// switch (this.objs) {
-		// 	case 0: 
-		// 		scn.dialog.setDialogO("This is my bomb. It's missing a virus and a detonator");
-		// 	break;
+		playClickFX();
+		
+		if (player.inventory[0] != undefined) {
+			if (player.inventory[0].n == "DETONATOR") {
+				this.objs++;
+				player.inventory.shift();
 
-		// 	case 2:
-		// 		scn.dialog.setDialogO();
-		// 	break;
-		// }
+				scn.dialog.setDialogO("Let's add this vhs player as detonator");
+			} else if (player.inventory[0].n == "TOAST") {
+				this.objs++;
+				player.inventory.shift();
 
-		// scn.dialog.enableDialog(this);
+				scn.dialog.setDialogO("Let's add this toast filled with deadly microbes");
+			}
+		} else if (player.inventory[1] != undefined) {
+			if (player.inventory[1].n == "DETONATOR") {
+				this.objs++;
+				player.inventory.shift();
 
-		// player.inventory[0].n == "DETONATOR" || player.inventory[1].n == "DETONATOR"
-		// player.inventory[0].n == "TOAST" || player.inventory[1].n == "TOAST"
+				scn.dialog.setDialogO("Let's add this vhs player as detonator");
+			} else if (player.inventory[1].n == "TOAST") {
+				this.objs++;
+				player.inventory.shift();
 
-		// if (player.inventory[0].n != undefined || player.inventory[1].n != undefined) {
-		// 	player.inventory.pop();
-		// 	this.objs++;
+				scn.dialog.setDialogO("Let's add this toast filled with deadly microbes");
+			}
+		} else if (bombSpr.objs >= 2) {
+			var mib = new IntSprite();
+			mib.initIntSpr(2/8*3, 2/8*3, 256, 16, 211, 0);
+			mib.act = function () {};
 
-		// 	scn.dialog.setDialogO("Let's add this vhs player as detonator");
-		// } else if (player.inventory[0].n == "TOAST" || player.inventory[1].n == "TOAST") {
-		// 	player.inventory.pop();
-		// 	this.objs++;
+			mat4.translate(mib.spr.modelMatrix, mib.spr.modelMatrix, [(2/8*9)/as,(2/8*1),0]);
+			mib.updArrowPos();
+			scn.sprites.push(mib);
 
-		// 	scn.dialog.setDialogO("Let's add this toast filled with deadly microbes");
-		// } else {
-		// 	scn.dialog.setDialogO("This is my bomb. It's missing some parts");
-		// }
+			player.spr.modelMatrix[12] = (2/8*5)/as;
+			player.spr.modelMatrix[13] = (2/8*1);
+			player.fliped = false;
+			player.spr.offset = 0;
 
-		// scn.dialog.enableDialog(this);
+			scn.dialog.act = function () {
+				scnMan.setLv(4);
+			}
 
-		if (this.objs>=2) {
-			console.log("Make A Bomb");
+			scn.dialog.setDialogO("Hello proffesor! I see you've completed   your bomb. I'm affraid I have to take you to the great pov");
+		} else {
+			scn.dialog.setDialogO("This is my bomb. It's missing some parts");
 		}
+
+		scn.dialog.enableDialog(this);
 	}
 
 	mat4.translate(bombSpr.spr.modelMatrix, bombSpr.spr.modelMatrix, [(2/8*8)/as,(2/8*2.7),0]);
@@ -337,6 +383,8 @@ function InitSprites() {
 	var josh = new IntSprite();
 	josh.initIntSpr(2/8*3,2/8*3,256,16,209,2/8);
 	josh.act = function () {
+		playClickFX();
+
 		scn2.dialog.enableDialog(this);
 	}
 
@@ -348,6 +396,8 @@ function InitSprites() {
 	var toaster = new IntSprite();
 	toaster.initIntSpr(2/8,2/8,256,16,47,0);
 	toaster.act = function () {
+		playClickFX();
+
 		player.addToInv("TOAST", 46);
 		toaster.spr.offset = 1;
 		this.enabledA = false;
@@ -365,6 +415,8 @@ function InitSprites() {
 	var deton = new IntSprite();
 	deton.initIntSpr(2/8,2/8,256,16,31,0);
 	deton.act = function () {
+		playClickFX();
+
 		player.addToInv("DETONATOR", 31);
 		this.enabledA = false;
 		this.enabledR = false;
@@ -406,9 +458,9 @@ function InitKeyboard() {
 function InitDialogs() {
 	scn.dialog = new Dialog();
 	scn.dialog.map = [
-		[["Who the hell are you?", "Sir are you allright, I'm your assistant, we work together, remember?",1],
-		["What are we doing here?", "Sir we are making a weapon of mass destruction here in garage.",2],
-		["Why is it so fucking dark here!", "We don't have money for more light bulbs sir",0],
+		[["Who the hell are you?", "Are you allright, I'm your assistant, we  work together, remember?",1],
+		["What are we doing here?", "We are making an unconventional bomb here in garage.",2],
+		["Why is it so dark here!", "We don't have money for more light bulbs",0],
 		["See you around!", "EXIT",0]],
 
 		[["Oh, yes! I've must of hit my had a bit", "Whatever you say",0],
@@ -416,11 +468,11 @@ function InitDialogs() {
 		 ["Thanks!", "Whatever you say",0]],
 
 		[["Of course, how could of I forgotten!", "Are sure you allright, sir?", 2],
-		 ["Why are we making it in an old garage?", "So no one would suspect? I don't really know.", 2],
-		 ["Can you remind me the guide?", "You've written a guide in your notebook.", 3]],
+		 ["Why are we making it in an old garage?", "So no one would suspect? I don't really   know.", 2],
+		 ["Whats the progress on this thing?", "It's still missing a few parts", 3]],
 
-		[["Can you read it for me?", "We need A) deadly virus, B) detonator and C) Secret Ingredient", 0],
-		 ["Yes, I did that. I'm a freaking genious!", "Yes you are, sir", 0]]
+		[["Which parts?", "It's missing a deadly virus and detonator", 0],
+		 ["Continue working", "Yes sir", 0]]
 		
 	];
 	scn.dialog.initDialog(gl, res.mFont);
@@ -428,14 +480,10 @@ function InitDialogs() {
 
 	scn2.dialog = new Dialog();
 	scn2.dialog.map = [
-		[["Hey, what are you doing in my house?!", "Excuse me! It's my house, and you are renting it from me.",1],
-		 ["Who are you?", "I'm Josh. Your housemate",0],
+		[["Who are you?", "I'm Josh. Your housemate",0],
 		 ["Know a place to get a deadly virus?","Not really. No",0],
 		 ["Got any detonators?", "Why would I have those?", 0],
-		 ["I'm gonna get a grip", "EXIT", 0]],
-
-		[["Oh, really!", "Yea really, here are the papers",0],
-		 ["Liar!", "Here are the papers",0]]
+		 ["I'm gonna get a grip", "EXIT", 0]]
 		
 	];
 	scn2.dialog.initDialog(gl, res.mFont);
