@@ -176,7 +176,10 @@ var scn7; //Coridor
 //Players
 var player;
 
+var lbar = new LoadScreen();
+
 window.onload = function () {
+	lbar.initLScreen();
 	resM.getResources(InitCanvas);
 }
 
