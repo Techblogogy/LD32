@@ -1,3 +1,55 @@
+function Fade() {
+	this.clb; //Callback
+
+	this.fadeO; //Fade Out
+	this.fadeI; //Fade In
+
+	this.tm; //Time
+
+	this.vel = 1.0;
+
+	this.tick = function () {
+		this.tickOut();
+		this.tickIn();
+	}
+
+	this.tickOut = function () {
+		if (this.fadeO) {
+			if (color[3] >= 0)
+				color[3] = 1.0 - (this.vel * ((cTime-this.tm)/1000));
+			else {
+				this.clb();
+				this.fadeO = false;
+			}
+		}
+	}
+
+	this.tickIn = function () {
+		if (this.fadeI) {
+			if (color[3] <= 1)
+				color[3] = this.vel * ((cTime-this.tm)/1000);
+			else {
+				this.clb();
+				this.fadeI = false;
+			}
+		}
+	}
+
+	this.fadeOut = function (cb) {
+		this.clb = cb;
+		this.tm = new Date().getTime();
+
+		this.fadeO = true;
+	}
+
+	this.fadeIn = function (cb) {
+		this.clb = cb;
+		this.tm = new Date().getTime();
+
+		this.fadeI = true;
+	}
+}
+
 function Door () {
 	this.dr; //Stpres Door Sprite
 
@@ -61,8 +113,16 @@ function SceneManager () {
 		if (cTime-this.lTm>=this.hTm) {
 			this.lTm = cTime;
 
-			this.curS = id;
-			player.spr.modelMatrix = this.scenes[this.curS].plPos;
+			player.enabled = false;
+
+			fd.fadeOut(function () {
+				scnMan.curS = id;
+				player.spr.modelMatrix = scnMan.scenes[scnMan.curS].plPos;
+
+				fd.fadeIn(function () {
+					player.enabled = true;
+				});
+			});
 
 			// console.log(this.scenes[this.curS].plPos);
 			// console.log(this.curS);

@@ -44,6 +44,16 @@ var res = {
 		src: "./res/maps/povLair.json"
 	},
 
+	cellMp: {
+		type: "text",
+		src: "./res/maps/cell.json"
+	},
+
+	corMp: {
+		type: "text",
+		src: "./res/maps/coridor1.json"
+	},
+
 	mainSheet: {
 		type: "image",
 		src: "./res/textures/gameSheet.png"
@@ -69,6 +79,16 @@ var res = {
 		src: "./res/textures/lightB.png"
 	},
 
+	lightMapP: {
+		type: "image",
+		src: "./res/textures/lightP.png"
+	},
+
+	lightMapC: {
+		type: "image",
+		src: "./res/textures/lightC.png"
+	},
+
 	mFont: {
 		type: "image",
 		src: "./res/fonts/FontSheet.png"
@@ -77,6 +97,11 @@ var res = {
 	theme1: {
 		type: "audio",
 		src: "./res/sounds/theme1.mp3"
+	},
+
+	theme2: {
+		type: "audio",
+		src: "./res/sounds/theme2.mp3"
 	},
 
 	click: {
@@ -140,6 +165,7 @@ var scn2; //Josh Room
 var scn3; //Kitchen
 var scn4; //Beasement
 var scn5; //POV Lair
+var scn6; //Prizon Cell
 
 //Players
 var player;
@@ -181,9 +207,11 @@ function InitGame() {
 	res.walkFx.aud.volume = 0.1;
 	res.click.aud.volume = 0.2;
 	res.theme1.aud.volume = 0.5;
+	res.theme2.aud.volume = 0.4;
 
 	res.walkFx.aud.loop = true;
 	res.theme1.aud.loop = true;
+	res.theme2.aud.loop = true;
 
 	res.theme1.aud.play();
 
@@ -290,8 +318,13 @@ function InitMaps() {
 
 	scn5 = new Scene();
 	scn5.addTilemap(res.povMp, res.mainSheet);
-	scn5.addLightmap(res.lightMapG);
+	scn5.addLightmap(res.lightMapP);
 	scnMan.scenes.push(scn5);
+
+	scn6 = new Scene();
+	scn6.addTilemap(res.cellMp, res.mainSheet);
+	scn6.addLightmap(res.lightMapC);
+	scnMan.scenes.push(scn6);
 }
 
 function InitSprites() {
@@ -335,7 +368,7 @@ function InitSprites() {
 				this.objs++;
 				player.inventory.shift();
 
-				scn.dialog.setDialogO("Let's add this toast filled with deadly microbes");
+				scn.dialog.setDialogO("Let's add this toast filled with deadly   microbes");
 			}
 		} else if (player.inventory[1] != undefined) {
 			if (player.inventory[1].n == "DETONATOR") {
@@ -364,7 +397,9 @@ function InitSprites() {
 			player.spr.offset = 0;
 
 			scn.dialog.act = function () {
-				scnMan.setLv(4);
+				scnMan.setLv(5);
+				// res.theme1.aud.pause();
+				// res.theme2.aud.play();
 			}
 
 			scn.dialog.setDialogO("Hello proffesor! I see you've completed   your bomb. I'm affraid I have to take you to the great pov");
@@ -403,7 +438,7 @@ function InitSprites() {
 		this.enabledA = false;
 
 		scn3.dialog.enbPrt = false;
-		scn3.dialog.setDialogO("Hmm, josh made this toast awhile ago. It  must have developed some dealy bacteria bynow");
+		scn3.dialog.setDialogO("Hmm, josh made this toast awhile ago. It  must have developed some deadly bacteria  by now");
 		scn3.dialog.enableDialog(this);
 	}
 
@@ -429,6 +464,93 @@ function InitSprites() {
 	mat4.translate(deton.spr.modelMatrix, deton.spr.modelMatrix, [(2/8*11)/as,0.75,0]);
 	deton.updArrowPos();
 	scn4.sprites.push(deton);
+
+	// INIT BOMB MIKE
+	var bmb2 = new IntSprite();
+	bmb2.initIntSpr(2/8, 2/8, 256, 16, 114, 0);
+	bmb2.act = function () {
+		playClickFX();
+	}
+
+	bmb2.enabledA = false;
+
+	mat4.translate(bmb2.spr.modelMatrix, bmb2.spr.modelMatrix, [(2/8*6.2)/as,(2/8*2.9),0]);
+	bmb2.updArrowPos();
+	scn5.sprites.push(bmb2);
+
+	//INIT MIKE HEAD
+	var povHead = new IntSprite();
+	povHead.initIntSpr(2/8*2, 2/8*2, 256, 16, 196,0);
+	povHead.act = function () {
+		playClickFX();
+		scn5.dialog.enableDialog(this);
+	}
+
+	mat4.translate(povHead.spr.modelMatrix, povHead.spr.modelMatrix, [(2/8*11.1)/as,(2/8*3.07),0]);
+	povHead.updArrowPos();
+	scn5.sprites.push(povHead);
+
+	//INIT MIKE BODY
+	var povBody = new IntSprite();
+	povBody.initIntSpr(2/8*3, 2/8*3, 256, 16, 212);
+	povBody.act = function () {
+		//playClickFX();
+	}
+
+	mat4.translate(povBody.spr.modelMatrix, povBody.spr.modelMatrix, [(2/8*11)/as,(2/8*1),0]);
+	povBody.updArrowPos();
+	scn5.sprites.push(povBody);
+
+	//INIT JUPI
+	var jupi = new IntSprite();
+	jupi.initIntSpr(2/8*3, 2/8*3, 256, 16, 213, 0);
+	jupi.act = function () {
+		playClickFX();
+
+		// scn6.dialog.curC = 1;
+		scn6.dialog.setDialogN();
+		scn6.dialog.enableDialog(this);
+	}
+
+	mat4.translate(jupi.spr.modelMatrix, jupi.spr.modelMatrix, [(2/8*4.2)/as,(2/8*1),0]);
+	jupi.updArrowPos();
+	scn6.sprites.push(jupi);
+
+	//INIT SINK
+	var sink = new IntSprite();
+	sink.initIntSpr(2/8*2, 2/8*2, 256, 16, 189, 0.2);
+	sink.act = function () {
+		playClickFX();
+
+		water.enabledR = true;
+		dr7.dr.enabledA = true;
+
+		this.spr.offset = 1;
+
+		scn6.dialog.enbPrt = false;
+		scn6.dialog.setDialogO("It appears i've broken this sink");
+		scn6.dialog.enableDialog(this);
+
+		this.enabledA = false;
+	}
+
+	mat4.translate(sink.spr.modelMatrix, sink.spr.modelMatrix, [(2/8*0)/as,(2/8*1),0]);
+	sink.updArrowPos();
+	scn6.sprites.push(sink);
+
+	var dr7 = new Door();
+	dr7.initDoor(scnMan, scn6, 4, 11);
+	dr7.dr.enabledA = false;
+
+	//INIT WATER
+	var water = new IntSprite();
+	water.initIntSpr(as*2, 2/16, 256, 16, 7);
+	water.act = function () { }
+	water.enabledR = false;
+
+	mat4.translate(water.spr.modelMatrix, water.spr.modelMatrix, [(2/8*0)/as,(2/8*1),0]);
+	water.updArrowPos();
+	scn6.sprites.push(water);
 
 	//INIT DOORS
 	var dr1 = new Door();
@@ -502,6 +624,39 @@ function InitDialogs() {
 	];
 	scn4.dialog.initDialog(gl, res.mFont);
 	scn4.dialog.setUpText(gl);
+
+	scn5.dialog = new Dialog();
+	scn5.dialog.act = function () {
+		scnMan.setLv(5);
+	}
+	scn5.dialog.map = [
+		[["We meet at once pov", "Please call me mike", 0],
+		 ["Why have you brought me here?", "Should I point out the obvious?", 1],
+		 ["What are you waiting for?", "I need to prepare myself for world destruction. But soon I will activate the bomb", 0],
+		 ["Why don't you kill me?", "I do need you to activate a bomb for me", 0],
+		 ["I better leave", "ACTION",0]],
+
+		[["Yes", "You've made one of the greates weapons,   with it I can take over this little world", 0],
+		 ["No", "Excellent", 0]]
+	];
+	scn5.dialog.initDialog(gl, res.mFont);
+	scn5.dialog.setUpText(gl);
+	scn5.plPos[12] = (2/8*8)/as;
+
+	scn6.dialog = new Dialog();
+	scn6.dialog.map = [
+		[["So, What's your story", "Nothing special, just tried to break into this establishment", 0],
+		 ["What's your name?", "Jupiter Hadley, but you can call me jupi", 0],
+		 ["How about escape?", "I might have a plan...", 1],
+		 ["That's enought chatter for now", "EXIT", 0]],
+
+		[["Spit it out", "Maybe if we find a way to flood this room security systems will unlock the door and guards will be evacuated", 0],
+		 ["It's not as good as mine so don't bother", "Prick", 0]]
+	];
+	scn6.dialog.initDialog(gl, res.mFont);
+	scn6.dialog.setUpText(gl);
+
+	scn6.plPos[12] = (2/8*8)/as;
 }
 
 function InitCamera() {
@@ -513,6 +668,8 @@ function InitCamera() {
 
 	gl.uniformMatrix4fv(mainSh.uniforms.proj, false, cam.projMatrix);
 	gl.uniformMatrix4fv(mainSh.uniforms.view, false, cam.viewMatrix);
+
+	fd.fadeIn(function () {});
 }
 
 function GetTime() {
@@ -528,12 +685,30 @@ function MainLoop() {
 	window.requestAnimationFrame(MainLoop);
 }
 
-var sp = 0.001;
-var strTime = new Date().getTime();
-// color[3] = 0;
+var fd = new Fade();
+// var fdMus = new Fade();
+
+// var sp = 0.85;
+// var strTime = 0;
+
+// var fadeI = false;
+// function FadeIn () {
+// 	fadeI = true;
+// 	strTime = new Date().getTime();
+// }
+
+// var fadeO = false;
+// function FadeOut () {
+// 	fadeO = true;
+// 	strTime = new Date().getTime();
+// }
 
 function Tick() {
 	GetTime();
+
+	// console.log(color[3]);
+	fd.tick();
+	//fdMus.tick();
 
 	scnMan.tick(kbrd);
 }
