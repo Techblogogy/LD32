@@ -638,14 +638,14 @@ function InitDialogs() {
 
 	scn3.dialog = new Dialog();
 	scn3.dialog.map = [
-		[]
+		[["tst"]]
 	];
 	scn3.dialog.initDialog(gl, res.mFont);
 	scn3.dialog.setUpText(gl);
 
 	scn4.dialog = new Dialog();
 	scn4.dialog.map = [
-		[]
+		[["tst"]]
 	];
 	scn4.dialog.initDialog(gl, res.mFont);
 	scn4.dialog.setUpText(gl);
@@ -687,7 +687,7 @@ function InitDialogs() {
 
 	scn7.dialog = new Dialog();
 	scn7.dialog.map = [
-		[]
+		[["tst"]]
 	];
 	scn7.dialog.initDialog(gl, res.mFont);
 	scn7.dialog.setUpText(gl);
