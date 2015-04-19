@@ -1,3 +1,86 @@
+function Door () {
+	this.dr; //Stpres Door Sprite
+
+	// this.dr.mn; //Scenen Manager
+	// this.dr.sc; //Jump To Scene
+
+	//Creates Door. PARAMETERRS: Scene manager, Scene, JumpTo scene id
+	this.initDoor = function (mn, scn, sc, ps) {
+		this.dr = new IntSprite();
+		this.dr.initIntSpr(2/8*3,2/8*3,256,16,90,0);
+
+		this.dr.mn = mn;
+		this.dr.sc = sc;
+
+		this.dr.act = function () {
+			// scnMan.prevLv();
+			// console.log(this);
+			this.mn.setLv(this.sc);
+		}
+
+		mat4.translate(this.dr.spr.modelMatrix, this.dr.spr.modelMatrix, [(2/8*ps)/as,0.25,0]);
+		this.dr.updArrowPos();
+
+		scn.sprites.push(this.dr);
+	}
+}
+
+function SceneManager () {
+	this.scenes = []; //Scenes Array
+	this.curS = 0; //Current Scene Id
+
+	this.hTm = 250; //Hold Time
+	this.lTm = 0; //Last Time
+
+	this.nextLv = function () {
+		if (cTime-this.lTm>=this.hTm) {
+			this.lTm = cTime;
+
+			this.curS++;
+			player.spr.modelMatrix = this.scenes[this.curS].plPos;
+
+			// console.log(this.scenes[this.curS].plPos);
+			// console.log(this.curS);
+		}
+	}
+
+	this.prevLv = function () {
+		if (cTime-this.lTm>=this.hTm) {
+			this.lTm = cTime;
+
+			this.curS--;
+			player.spr.modelMatrix = this.scenes[this.curS].plPos;
+
+			// console.log(this.scenes[this.curS].plPos);
+			// console.log(this.curS);
+		}
+	}
+
+	this.setLv = function (id) {
+		if (cTime-this.lTm>=this.hTm) {
+			this.lTm = cTime;
+
+			this.curS = id;
+			player.spr.modelMatrix = this.scenes[this.curS].plPos;
+
+			// console.log(this.scenes[this.curS].plPos);
+			// console.log(this.curS);
+		}
+	}
+
+	this.tick = function (kb) {
+		this.scenes[this.curS].tickScene(kb);
+	}
+
+	this.render = function (gl, sh) {
+		this.scenes[this.curS].drawScene(gl, sh);
+	}
+
+	this.renderTxt = function (gl, sh) {
+		this.scenes[this.curS].drawText(gl, sh);
+	}
+}
+
 function Scene () {
 	this.sprites = []; //Stores Scene Objects
 
@@ -5,13 +88,27 @@ function Scene () {
 	this.dialog; //Dialog Object
 	//this.player; //Player Object
 
+	this.plPos = mat4.create(); //Stores Player Position
+	mat4.translate(this.plPos, this.plPos, [(2/8*0)/as,0.25,0]);
+
+	this.addTilemap = function (dt, mp) {
+		this.tileMap = new Tilemap();
+		this.tileMap.getTilemapDataFile(dt, mp, 2/8);
+		this.tileMap.initTilemap(gl);
+
+		this.tileMap.spr.setUniformsLocation(mainSh.uniforms.model, mainSh.uniforms.texOff);
+	}
+
 	this.tickScene = function (kb) {
+		this.plPos = player.spr.modelMatrix;
+
 		for (var i=0; i<this.sprites.length; i++) {
 			//if (this.sprites.tickSprite != undefined)
 			this.sprites[i].tickSprite(kb);
 		}
 
-		this.dialog.tickDialog(kb); //Dialog Logic
+		if (this.dialog != undefined)
+			this.dialog.tickDialog(kb); //Dialog Logic
 		player.tickPlayer(kb); //Player Logic
 	}
 
@@ -29,8 +126,12 @@ function Scene () {
 	}
 
 	this.drawText = function (gl, sth) {
-		fontTex.bindTexture(gl, gl.TEXTURE0, 0, mainSh.uniforms.tex);
-		this.dialog.drawDialog(gl, sth); //Draw Dialog
+		fontTex.bindTexture(gl, gl.TEXTURE0, 0, mainSh.uniforms.tex); //Bind Font Texture
+		if (this.dialog != undefined)
+			this.dialog.drawDialog(gl, sth); //Draw Dialog
+
+		mainTex.bindTexture(gl, gl.TEXTURE0, 0, mainSh.uniforms.tex);
+		player.drawInv(gl, sth);
 	}
 }
 
@@ -40,19 +141,70 @@ function Player () {
 
 	this.t = (1/4)/24; //Players Speed
 
+	this.inventory = [];
+
+	this.fliped = false;
+
+	// this.transMatrix = mat4.create(); //Translation Matrix
+	// this.rotMatrix = mat4.create(); //Rotation Matrix
+	// this.scaleMatrix = mat4.create(); //Scale Matrix
+
 	//Ticks Player
 	this.tickPlayer = function (kb) {
+		// mat4.scale();
+		// this.transMatrix = mat4.create(); //Translation Matrix
+		// this.rotMatrix = mat4.create(); //Rotation Matrix
+		// this.scaleMatrix = mat4.create(); //Scale Matrix
+
+		// mat4.identity(this.spr.modelMatrix);
+
+		// mat4.translate(this.transMatrix, this.transMatrix, [1-this.spr.w/2/as,1,0]);
+		// mat4.scale(this.scaleMatrix, this.scaleMatrix, [-1,1,1]);
+
+		// mat4.multiply(this.spr.modelMatrix, this.transMatrix, this.rotMatrix);
+		// mat4.multiply(this.spr.modelMatrix, this.spr.modelMatrix, this.scaleMatrix);
+
 		if (this.enabled) {
 			if (kbrd.keys.A) { //Move Left
+				// mat4.translate(this.transMatrix, this.transMatrix, [-this.t/as,0,0]);
+
+				if (!this.fliped) { this.spr.offset = 3; this.fliped = true; this.spr.animInit(380, 1,4,6); }
+
 				mat4.translate(this.spr.modelMatrix, this.spr.modelMatrix, [-this.t/as,0,0]);
 				this.spr.animTick();
 			} else if (kbrd.keys.D) { //Move Right
+				// mat4.translate(this.transMatrix, this.transMatrix, [this.t/as,0,0]);
+
+				if (this.fliped) { this.spr.offset = 0; this.fliped = false; this.spr.animInit(380, 1,1,3); }
+
 				mat4.translate(this.spr.modelMatrix, this.spr.modelMatrix, [this.t/as,0,0]);
 				this.spr.animTick();
 			} else {
-				this.spr.offset = 0;
+				if (this.fliped) this.spr.offset = 3;
+				else this.spr.offset = 0;
 				this.spr.animTime = this.spr.animDuration;
 			}
+		}
+	}
+
+	//Adds Object To Inventory. PARAMETERS: Name, Id
+	this.addToInv = function (nm, id) {
+		var ob = new Sprite();
+		ob.createSprite(2/10, 2/10, 256, 16, id);
+		// // console.log(ob);
+		ob.initSprite(gl);
+
+		ob.setUniformsLocation(mainSh.uniforms.model, mainSh.uniforms.texOff);
+		mat4.translate(ob.modelMatrix, ob.modelMatrix, [(2/8*(this.inventory.length+0.1))/as,1.78,0]);
+
+		this.inventory.push( {n: nm, o: ob} );
+
+		// console.log(ob);
+	}
+
+	this.drawInv = function (gl, sth) {
+		for (var i=0; i<this.inventory.length; i++) {
+			this.inventory[i].o.drawSprite(gl, sth);
 		}
 	}
 
@@ -67,7 +219,7 @@ function IntSprite() {
 	this.spr; //Sprite
 	this.arw; //Arrow
 
-	this.arwCtr = [];
+	this.arwCtr = []; //Arow Transform Vector
 
 	this.enabledR = true; //Enabled Render
 	this.enabledA = true; //Enabled Logic
@@ -80,7 +232,9 @@ function IntSprite() {
 	this.pTime = 0;
 	this.hTime = 200;
 
-	this.initIntSpr = function (w, h, tSize, sSize, id) {
+	this.wMod = 0;
+
+	this.initIntSpr = function (w, h, tSize, sSize, id, wMd) {
 		this.spr = new Sprite();
 		this.spr.createSprite(w, h, tSize, sSize, id);
 		this.spr.initSprite(gl);
@@ -92,15 +246,17 @@ function IntSprite() {
 		this.arw.initSprite(gl);
 
 		this.arw.setUniformsLocation(mainSh.uniforms.model, mainSh.uniforms.texOff);
+
+		this.wMod = wMd;
 	}
 
 	this.updArrowPos = function () {
-		this.arwCtr = [this.spr.modelMatrix[12],this.spr.modelMatrix[13]+this.spr.w,0];
+		this.arwCtr = [ (this.spr.modelMatrix[12]+this.spr.w/2/as)-(this.arw.w/2/as) ,this.spr.modelMatrix[13]+this.spr.w,0];
 		mat4.translate(this.arw.modelMatrix, this.arw.modelMatrix, this.arwCtr);
 	}
 
 	this.isColliding = function (mat2, w2) {
-		return ( ((this.spr.modelMatrix[12]) < (mat2[12]+w2/as)) && ((this.spr.modelMatrix[12]+this.spr.w/as) > (mat2[12])) );
+		return ( ((this.spr.modelMatrix[12]) < (mat2[12]+w2/as)) && ((this.spr.modelMatrix[12]+(this.spr.w-this.wMod)/as) > (mat2[12])) );
 	}
 
 	this.tickSprite = function (kb) {
@@ -127,7 +283,7 @@ function IntSprite() {
 		if (this.enabledR) {
 			this.spr.drawSprite(gl, sh);
 
-			if (this.colliding)
+			if (this.colliding && this.enabledA) //Draw Arrow
 				this.arw.drawSprite(gl, sh);
 			}
 		}
@@ -155,13 +311,16 @@ function Dialog()
 	this.enabled = false;
 	this.answering = false;
 
-	this.prt;
+	this.prt; //Calling Object
+
+	this.blk; //Black Sprite
 
 	this.initDialog = function (gl, fnt) {
 		this.font = fnt;
 
 		this.initCursor(gl);
 		this.initText(this.map[this.curC]);
+		this.initBlk(gl, this.curS);
 	}
 
 	this.setUpText = function (gl) {
@@ -182,6 +341,14 @@ function Dialog()
 
 		//mat4.translate(this.cursorSpr.modelMatrix, this.cursorSpr.modelMatrix, [0,this.curId*this.s,0]);
 		//this.cursorSpr.modelMatrix[13] = this.curId*this.s;
+	}
+
+	this.initBlk = function (gl, h) {
+		this.blk = new Sprite();
+		this.blk.createSprite(as*2, this.s*h+0.05, 128, 8, 256);
+		this.blk.initSprite(gl);
+
+		this.blk.setUniformsLocation(mainSh.uniforms.model, mainSh.uniforms.texOff);
 	}
 
 	this.initText = function (mp) {
@@ -241,10 +408,11 @@ function Dialog()
 
 				this.dTxt = this.map[this.curC][this.curS-this.curId-1][1];
 
-				if (this.dTxt == "EXIT") {
+				if (this.dTxt == "EXIT") { //QUIT
 					this.disableDialog();
-				} else {
+				} else { //RESPOND
 					this.setUpText(gl);
+					this.initBlk(gl,this.txt.h);
 					this.answering = true;
 				}
 			} else if (kb.keys[" "] && cTime-this.pTime>=this.holdTime && this.answering) {
@@ -255,6 +423,7 @@ function Dialog()
 
 				this.initText(this.map[this.curC]);
 				this.setUpText(gl);
+				this.initBlk(gl,this.curS);
 
 				this.answering = false;
 			}
@@ -263,6 +432,7 @@ function Dialog()
 
 	this.drawDialog = function (gl, sth) {
 		if (this.enabled) {
+			this.blk.drawSprite(gl, sth);
 			this.txt.txtMap.drawTilemap(gl, sth);
 
 			if (!this.answering)

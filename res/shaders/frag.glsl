@@ -8,7 +8,9 @@ uniform sampler2D tex;
 uniform vec2 texOff;
 // uniform sampler2D light;
 
+// uniform vec4 col;
+
 void main(void) 
 { 
-	gl_FragColor = texture2D(tex, vTexPs+texOff)/* texture2D(light, vLmpPs)*/;
+	gl_FragColor = texture2D(tex, vTexPs+texOff); //* col/* texture2D(light, vLmpPs)*/;
 }

@@ -18,5 +18,5 @@ void main(void)
 	vTexPs = vec2(texPs.x,1.0-texPs.y);
 	vLmpPs = vec2(lmpPsMd.x-lOff,1.0-lmpPsMd.y);
 
-	gl_Position = model * proj * view * vec4(inpCr, 0.0, 1.0); 
+	gl_Position = model * proj * view * vec4(inpCr.x, inpCr.y, 0.0, 1.0); 
 }
