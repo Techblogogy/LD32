@@ -608,16 +608,16 @@ function InitKeyboard() {
 function InitDialogs() {
 	scn.dialog = new Dialog();
 	scn.dialog.map = [
-		[["Who the hell are you?", "Are you allright, I'm your assistant, we  work together, remember?",1],
+		[["Who the hell are you?", "Are you alright, I'm your assistant, we  work together, remember?",1],
 		["What are we doing here?", "We are making an unconventional bomb here in garage.",2],
 		["Why is it so dark here!", "We don't have money for more light bulbs",0],
 		["See you around!", "EXIT",0]],
 
-		[["Oh, yes! I've must of hit my had a bit", "Whatever you say",0],
+		[["Oh, yes! I've must of hit my head a bit", "Whatever you say",0],
 		 ["Ah, now I remember", "Whatever you say",0],
 		 ["Thanks!", "Whatever you say",0]],
 
-		[["Of course, how could of I forgotten!", "Are sure you allright, sir?", 2],
+		[["Of course, how could of I forgotten!", "Are sure you alright, sir?", 2],
 		 ["Why are we making it in an old garage?", "So no one would suspect? I don't really   know.", 2],
 		 ["Whats the progress on this thing?", "It's still missing a few parts", 3]],
 
@@ -663,7 +663,7 @@ function InitDialogs() {
 		[["We meet once again pov", "Hello my old friend", 0],
 		 ["Why have you brought me here?", "Should I point out the obvious?", 1]],
 
-		[["Yes", "You've made one powerfull weapon here, if you make me more I can take over the world", 2],
+		[["Yes", "You've made one powerful weapon here, if you make me more I can take over the world", 2],
 		 ["No", "Excellent", 2]],
 
 		[["I will never join you!", "We'll see about that", 2],
@@ -678,7 +678,7 @@ function InitDialogs() {
 		[["So, What's your story", "Nothing special, just tried to break into this establishment", 0],
 		 ["What's your name?", "Jupiter Hadley, but you can call me jupi", 0],
 		 ["How about escape?", "I might have a plan...", 1],
-		 ["That's enought chatter for now", "EXIT", 0]],
+		 ["That's enough chatter for now", "EXIT", 0]],
 
 		[["Spit it out", "Maybe if we find a way to flood this room security systems will unlock the door and guards will be evacuated", 0],
 		 ["It's not as good as mine so don't bother", "Prick", 0]]
