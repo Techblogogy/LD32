@@ -2,6 +2,10 @@ body{
 	background-color: #000;
 }
 
+p {
+	color: #fff;
+}
+
 #gameCanvas {
 	padding-left: 0;
 	padding-right: 0;

@@ -608,7 +608,7 @@ function InitKeyboard() {
 function InitDialogs() {
 	scn.dialog = new Dialog();
 	scn.dialog.map = [
-		[["Who the hell are you?", "Are you alright, I'm your assistant, we  work together, remember?",1],
+		[["Who the hell are you?", "Are you alright, I'm your assistant, we   work together, remember?",1],
 		["What are we doing here?", "We are making an unconventional bomb here in garage.",2],
 		["Why is it so dark here!", "We don't have money for more light bulbs",0],
 		["See you around!", "EXIT",0]],
