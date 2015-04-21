@@ -191,7 +191,7 @@ function InitCanvas() {
 	canvas.height = 576;
 	as = canvas.width/canvas.height;
 
-	gl = canvas.getContext("webgl");
+	gl = canvas.getContext("experimental-webgl") ;
 
 	document.body.appendChild(canvas);
 
