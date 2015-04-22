@@ -252,7 +252,7 @@ function InitShaders() {
 	//Get Main Shader Attributes
 	mainSh.pushAttribute(gl, "inpCr", 2, 6*S_FLOAT, 0);
 	mainSh.pushAttribute(gl, "texPs", 2, 6*S_FLOAT, 2*S_FLOAT);
-	mainSh.pushAttribute(gl, "lmpPs", 2, 6*S_FLOAT, 4*S_FLOAT);
+	// mainSh.pushAttribute(gl, "lmpPs", 2, 6*S_FLOAT, 4*S_FLOAT);
 
 	//Get Main Shader Uniforms
 	mainSh.pushUniform(gl, "proj");

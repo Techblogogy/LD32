@@ -1,7 +1,7 @@
 precision highp float; 
 precision highp sampler2D; 
 
-varying vec2 vTexPs; 
+// varying vec2 vTexPs; 
 varying vec2 vLmpPs;
 
 uniform sampler2D tex; 
