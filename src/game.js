@@ -96,27 +96,27 @@ var res = {
 
 	theme1: {
 		type: "audio",
-		src: "./res/sounds/theme1.mp3"
+		src: "./res/sounds/theme1"
 	},
 
 	theme2: {
 		type: "audio",
-		src: "./res/sounds/theme2.mp3"
+		src: "./res/sounds/theme2"
 	},
 
 	click: {
 		type: "audio",
-		src: "./res/sounds/blip.mp3"
+		src: "./res/sounds/blip"
 	},
 
 	walkFx: {
 		type: "audio",
-		src: "./res/sounds/walk.mp3"
+		src: "./res/sounds/walk"
 	},
 
 	boomFx: {
 		type: "audio",
-		src: "./res/sounds/exlod.mp3"
+		src: "./res/sounds/exlod"
 	}
 }
 
